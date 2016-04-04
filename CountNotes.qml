@@ -261,7 +261,7 @@ MuseScore {
 		content += crlf;
 		//get filename
 		var filename = (curScore.title != "")? curScore.title : Date.now();
-		filename = filename.replace(/ /g, "_");
+		filename = filename.replace(/ /g, "_").replace(/"/g, "").replace(/\//g, "-").replace(/\\/g, "-").replace(/\?/g, "").replace(/!/g, "");
 		filename = exportDirectory.text + "//" + filename + ".txt";
 		console.log(filename);
 		
