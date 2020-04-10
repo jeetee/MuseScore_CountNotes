@@ -2,6 +2,7 @@
 //  Count Notes Plugin
 //  Copyright (C)2011 Mike Magatagan
 //  port to qml: Copyright (C) 2016 Johan Temmerman (jeetee)
+//  update to MS3: Copyright (C) 2020 Johan Temmerman (jeetee)
 //  note name detection from the Note Names plugin of the MuseScore distribution
 //
 //  This program is free software; you can redistribute it and/or modify
@@ -16,19 +17,20 @@ import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
-import Qt.labs.folderlistmodel 2.1
 import Qt.labs.settings 1.0
+// FileDialog
+import Qt.labs.folderlistmodel 2.1
+import QtQml 2.2
+import FileIO 3.0
 
-import MuseScore 1.0
-import FileIO 1.0
-
+import MuseScore 3.0
 
 MuseScore {
 	menuPath: 'Plugins.Notes.Count Notes'
-	version: '2.2'
+	version: '3.0.0'
 	description: 'Creates Performance notes (commonly used in Handbell Arrangements) detailing the notes used (by octave as well as Sharps and Flats used).'
 	pluginType: 'dialog'
-	//requiresScore: true //not supported before 2.1.0, manual checking onRun
+	requiresScore: true
 
 	width:  360
 	height: 90
@@ -145,18 +147,18 @@ MuseScore {
 
 	function processNoteIntoCount(note, count)
 	{
-		var octave = Math.floor(note.ppitch / 12); //MIDI pitch to octave
+		var octave = Math.floor(note.pitch / 12); //MIDI pitch to octave
 		if (!count.notes[octave]) { //didn't have this octave yet
 			count.notes[octave] = [];
 		}
 		var tpc = getTpcInfo(note.tpc); //tonal pitch class
 		//check if we've already registered this note
 		var i = 0;
-		while ((i < count.notes[octave].length) && (count.notes[octave][i].pitch < note.ppitch)) {
+		while ((i < count.notes[octave].length) && (count.notes[octave][i].pitch < note.pitch)) {
 			i++;
 		}
 		if (   (i == count.notes[octave].length)
-			|| (count.notes[octave][i] && (count.notes[octave][i].pitch > note.ppitch))
+			|| (count.notes[octave][i] && (count.notes[octave][i].pitch > note.pitch))
 			) {//last or higher pitched notes in this octave were already detected
 			for (var j = count.notes[octave].length; j > i; --j) { //shift them
 				count.notes[octave][j] = count.notes[octave][j - 1];
@@ -164,8 +166,8 @@ MuseScore {
 			//add new note
 			count.bells++;
 			count.notes[octave][i] = {
-				pitch: note.ppitch,
-				text: tpc.text + octave
+				pitch: note.pitch,
+				text: tpc.text + (octave - 1)
 			};
 			if (tpc.isFlat) {
 				count.flats++;
@@ -260,7 +262,7 @@ MuseScore {
 		content += ' and ' + count.sharps + ' ' + ((count.sharps === 1)? 'sharp' : 'sharps');
 		content += crlf;
 		//get filename
-		var filename = (curScore.title != "")? curScore.title : Date.now();
+		var filename = (curScore.title != "")? curScore.title : Date.now().toString();
 		filename = filename.replace(/ /g, "_").replace(/"/g, "").replace(/\//g, "-").replace(/\\/g, "-").replace(/\?/g, "").replace(/!/g, "");
 		filename = exportDirectory.text + "//" + filename + ".txt";
 		console.log(filename);
