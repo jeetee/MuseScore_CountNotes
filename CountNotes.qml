@@ -26,20 +26,19 @@ import FileIO 3.0
 import MuseScore 3.0
 
 MuseScore {
-	menuPath: 'Plugins.Notes.Count Notes'
-	version: '3.0.0'
+	menuPath: 'Plugins.Notes.Count Notes (Handbell)'
+	title: 'Handbell Count Notes'
+	version: '4.0.0'
 	description: 'Creates Performance notes (commonly used in Handbell Arrangements) detailing the notes used (by octave as well as Sharps and Flats used).'
+	thumbnailName: 'CountNotes.png'
+	categoryCode: 'analysis'
 	pluginType: 'dialog'
 	requiresScore: true
 
 	width:  360
-	height: 90
+	height: 120
 
 	onRun: {
-		if (!curScore) {
-			console.log(qsTranslate("QMessageBox", "No score open.\nThis plugin requires an open score to run.\n"));
-			Qt.quit();
-		}
 		directorySelectDialog.folder = ((Qt.platform.os == "windows")? "file:///" : "file://") + exportDirectory.text;
 	}
 
@@ -71,7 +70,6 @@ MuseScore {
 	}
 
 	Rectangle {
-		color: "lightgrey"
 		anchors.fill: parent
 
 		GridLayout {
@@ -103,7 +101,7 @@ MuseScore {
 				text: qsTranslate("PrefsDialogBase", "Export")
 				onClicked: {
 					countNotes();
-					Qt.quit();
+					quit();
 				}
 			}
 
